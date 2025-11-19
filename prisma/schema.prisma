@@ -1,0 +1,47 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/simavi_image_recognition/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  images    Image[]
+
+  @@index([email])
+}
+
+model Image {
+  id                 Int      @id @default(autoincrement())
+  originalName       String
+  newName            String?
+  cloudStoragePath   String
+  fileSize           Int
+  mimeType           String
+  objects            String?  @db.Text
+  detectedText       String?  @db.Text
+  location           String?
+  metadata           String?  @db.Text
+  analysisStatus     String   @default("pending")
+  analysisError      String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  userId             Int
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([analysisStatus])
+  @@index([createdAt])
+  @@index([userId])
+}
